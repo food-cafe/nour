@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portfolio</title>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0f0d0b;padding:12px;font-family:system-ui,sans-serif}
+
+.gallery{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:10px;
+  max-width:1100px;
+  margin:0 auto;
+}
+.gallery img{
+  width:100%;
+  aspect-ratio:1/1;
+  object-fit:cover;
+  display:block;
+  border-radius:8px;
+  cursor:pointer;
+  transition:opacity .2s;
+}
+.gallery img:hover{opacity:.85}
+
+/* العرض المكبّر */
+.viewer{
+  position:fixed;inset:0;
+  background:rgba(0,0,0,.95);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:10;
+  padding:16px;
+}
+.viewer.open{display:flex}
+.viewer img{
+  max-width:95vw;
+  max-height:92vh;
+  object-fit:contain;
+  border-radius:6px;
+}
+.viewer button{
+  position:absolute;
+  background:rgba(255,255,255,.15);
+  border:none;color:#fff;
+  width:46px;height:46px;
+  border-radius:50%;
+  font-size:1.5rem;
+  cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+}
+.viewer button:active{background:rgba(255,255,255,.35)}
+.prev{right:16px;top:50%;transform:translateY(-50%)}
+.next{left:16px;top:50%;transform:translateY(-50%)}
+.close{top:16px;left:16px;font-size:1.1rem}
+
+@media(max-width:700px){
+  .gallery{grid-template-columns:repeat(2,1fr);gap:8px}
+  body{padding:8px}
+}
+</style>
+</head>
+<body>
+
+<!-- ====== الشبكة ====== -->
+<div class="gallery" id="gallery"></div>
+
+<!-- ====== العرض المكبّر ====== -->
+<div class="viewer" id="viewer">
+  <button class="close" id="close">✕</button>
+  <button class="prev"  id="prev">›</button>
+  <button class="next"  id="next">‹</button>
+  <img id="bigImg" src="" alt="">
+</div>
+
+<script>
+const IMAGES = [
+  "dish-01.jpg", "dish-02.jpg", "dish-03.jpg", "dish-04.jpg",
+  "dish-05.jpg", "dish-06.jpg", "dish-07.jpg", "dish-08.jpg",
+  "dish-09.jpg", "dish-10.jpg", "dish-11.jpg", "dish-12.jpg",
+  "dish-13.jpg", "dish-14.jpg"
+];
+
+(function(){
+  const DIR = "images/"; // المسار الذي ستبحث فيه الصفحة عن الصور
+  const gallery = document.getElementById("gallery");
+  const viewer  = document.getElementById("viewer");
+  const bigImg  = document.getElementById("bigImg");
+  let current = 0;
+
+  IMAGES.forEach((file, i) => {
+    const img = document.createElement("img");
+    img.src = DIR + file;
+    img.alt = "";
+    img.loading = "lazy";
+    img.addEventListener("click", () => open(i));
+    gallery.appendChild(img);
+  });
+
+  function show(i){
+    current = (i + IMAGES.length) % IMAGES.length;
+    bigImg.src = DIR + IMAGES[current];
+  }
+  function open(i){
+    show(i);
+    viewer.classList.add("open");
+    document.body.style.overflow = "hidden";
+  }
+  function close(){
+    viewer.classList.remove("open");
+    document.body.style.overflow = "";
+  }
+
+  document.getElementById("close").onclick = close;
+  document.getElementById("next").onclick  = () => show(current + 1);
+  document.getElementById("prev").onclick  = () => show(current - 1);
+  viewer.onclick = e => { if (e.target === viewer) close(); };
+
+  document.addEventListener("keydown", e => {
+    if (!viewer.classList.contains("open")) return;
+    if (e.key === "Escape")     close();
+    if (e.key === "ArrowLeft")  show(current + 1);
+    if (e.key === "ArrowRight") show(current - 1);
+  });
+})();
+</script>
+</body>
+</html>
